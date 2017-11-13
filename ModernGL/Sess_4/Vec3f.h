@@ -73,11 +73,20 @@ public:
         return Vec3f(x * s, y * s, z *s);
     }
 
-    Vec3f& operator+=(const Vec3f r) 
+    Vec3f& operator+=(const Vec3f& r) 
     {
         x += r.x;
         y += r.y;
         z += r.z;
+
+        return *this;
+    }
+
+    Vec3f& operator-=(const Vec3f& r)
+    {
+        x -= r.x;
+        y -= r.y;
+        z -= r.z;
 
         return *this;
     }

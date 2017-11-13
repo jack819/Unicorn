@@ -5,15 +5,18 @@
 static const char vertex_shader[] = 
 "attribute vec3 Position; \n"
 "uniform mat4 worldMatrix; \n"
+"varying vec4 color; \n"
 "void main() \n"
 "{    \n"
 "    gl_Position = worldMatrix * vec4(Position, 1.0); \n"
+"    color = vec4(clamp(Position, 0.0, 1.0), 1.0);  \n"
 "} \n";
 
 static const char fragment_shader[] = 
+"varying vec4 color; \n"
 "void main() \n"
 "{   \n"
-"    gl_FragColor = vec4(1.0, 0.0, 0.0, 0.5); \n"
+"    gl_FragColor = color; \n"
 "}  \n";
 
 

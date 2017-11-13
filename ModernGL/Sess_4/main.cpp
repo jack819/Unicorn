@@ -5,12 +5,21 @@
 #include <math.h>
 #include "GLProgram.h"
 #include "Matrix4f.h"
+#include "Camera.h"
 
 #define WIDTH 480
 #define HEIGHT 320
 
 GLuint VBO;
 GLuint IBO;
+Camera *pCamera = NULL;
+
+static void setCamera()
+{
+    pCamera = new Camera(WIDTH, HEIGHT, Vec3f(0.0f, 0.0f, -3.0f), Vec3f(0.0, 0.0, 2.0f), Vec3f(0.0, 1.0f, 0.0f));
+
+}
+
 
 static void createVertex()
 {
@@ -47,35 +56,35 @@ static void draw()
     static float scaleFactor = 0.0f;
     scaleFactor += 0.1f;
 
-    Vec3f pos(0.0f, 0.0f, -3.0f);
-    Vec3f target(0.0, 0.0, 2.0f);
-    Vec3f up(0.0, 1.0f, 0.0f);
+    // Vec3f pos(0.0f, 0.0f, -3.0f);
+    // Vec3f target(0.0, 0.0, 2.0f);
+    // Vec3f up(0.0, 1.0f, 0.0f);
 
 
     Matrix4f   scaleMat, RotateMat, TransMat;
-    scaleMat = Matrix4f::Scale(10.0, 10.0, 1.0);
+    scaleMat = Matrix4f::Scale(1.0, 1.0, 1.0);
     RotateMat = Matrix4f::RotationY(scaleFactor);
     TransMat  = Matrix4f::Translation(0.0f, 0.0f, 3.0f);
 
     Matrix4f  worldMat;
     worldMat = TransMat * RotateMat * scaleMat;
 
-    Matrix4f  cameraMat;
-    cameraMat = Matrix4f::lookat(pos, target, up);
-    Matrix4f  projectMat;
-        float mNear = 1.0f;
-        float mFar =  100.0f;
-        float mFovy = 60.0f;
-        float ymax = mNear * tan(mFovy * 0.5);
-        float ymin = - ymax;
-        float xmin = ymin * ((float)WIDTH / HEIGHT);
-        float xmax = -xmin;
-    projectMat = Matrix4f::frustum(xmin, xmax, ymin, ymax, mNear, mFar);
+    // Matrix4f  cameraMat;
+    // cameraMat = Matrix4f::lookat(pos, target, up);
+    // Matrix4f  projectMat;
+    //     float mNear = 1.0f;
+    //     float mFar =  100.0f;
+    //     float mFovy = 45.0f;
+    //     float ymax = mNear * tan(mFovy * 0.5);
+    //     float ymin = - ymax;
+    //     float xmin = ymin * ((float)WIDTH / HEIGHT);
+    //     float xmax = -xmin;
+    // projectMat = Matrix4f::frustum(xmin, xmax, ymin, ymax, mNear, mFar);
 
-    Matrix4f  viewMat;
-    viewMat = projectMat * cameraMat;
+    // Matrix4f  viewMat;
+    // viewMat = projectMat * cameraMat;
 
-    Matrix4f  mvpMat = viewMat * worldMat;
+    Matrix4f  mvpMat = pCamera->getProjectMatrix() * worldMat;
 
 
     glUniformMatrix4fv(Program::getMVPmatrix(), 1, GL_TRUE, mvpMat.getRawPointer());
@@ -89,14 +98,20 @@ static void draw()
     glutSwapBuffers();
 }
 
+static void specialKeyboardCB(int Key, int x, int y)
+{
+    pCamera->onKeyboard(Key);
+}
 
 static void mainProcess()
 {
 
     Program::createProgram();
     createVertex();
+    setCamera();
     glutDisplayFunc(draw);
     glutIdleFunc(draw);
+    glutSpecialFunc(specialKeyboardCB);
 }
 
 
